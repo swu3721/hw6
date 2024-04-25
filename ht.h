@@ -346,23 +346,23 @@ size_t HashTable<K,V,Prober,Hash,KEqual>::size() const
 template<typename K, typename V, typename Prober, typename Hash, typename KEqual>
 void HashTable<K,V,Prober,Hash,KEqual>::insert(const ItemType& p)
 {
-    // Check if resizing is needed
+    //Check for resize
     if ((double)numInserted_ / (double)CAPACITIES[mIndex_] >= resizeAlpha_) { //Num added instead of size (we need to include the marked to be deleted as well as the items in hash table)
         resize();
     }
 
-    HASH_INDEX_T loc = probe(p.first);
+    HASH_INDEX_T loc = probe(p.first); //Location
+
     if (loc == npos) {
         throw std::logic_error("No free location found");
     }
 
-    // Insert a new HashItem if the location is empty, or update the value if the key already exists
-    if (table_[loc] == nullptr) {
+    if (table_[loc] == nullptr) { //If nullptr, make a new item
         HashItem* newItem = new HashItem(p);
         table_[loc] = newItem;
         numInserted_ += 1;
     } else {
-        table_[loc]->item.second = p.second;
+        table_[loc]->item.second = p.second; //Update if not nullptr
     }
 
 }
@@ -449,27 +449,27 @@ typename HashTable<K,V,Prober,Hash,KEqual>::HashItem* HashTable<K,V,Prober,Hash,
 template<typename K, typename V, typename Prober, typename Hash, typename KEqual>
 void HashTable<K,V,Prober,Hash,KEqual>::resize()
 {
-    HASH_INDEX_T oldTableSize = CAPACITIES[mIndex_];
+    HASH_INDEX_T oldTableSize = CAPACITIES[mIndex_]; //Old table size
 
-    ++mIndex_;
+    ++mIndex_; //Increment index
     if (mIndex_ >= 28) {
         throw std::logic_error("No more prime capacities available for resizing.");
     }
     
-    HASH_INDEX_T newTableSize = CAPACITIES[mIndex_];
-    std::vector<HashItem*> newTable = {};
-    std::vector<HashItem*> oldTable = table_;
+    HASH_INDEX_T newTableSize = CAPACITIES[mIndex_]; //New table size
+    std::vector<HashItem*> newTable = {}; //New table
+    std::vector<HashItem*> oldTable = table_; //Old table copy
     
     for (HASH_INDEX_T i = 0; i < newTableSize; ++i) {
         newTable.push_back(nullptr);
     }
-    table_ = newTable;
-    // Rehash all non-deleted items into the new table
-    for (HASH_INDEX_T i = 0; i < oldTableSize; ++i) {
-        if (oldTable[i] == nullptr) {
+    table_ = newTable; //Set table_ to new table
+
+    for (HASH_INDEX_T i = 0; i < oldTableSize; ++i) { //For old table
+        if (oldTable[i] == nullptr) { //Do nothing if nullptr
             continue;
         }
-        if ((oldTable[i]->deleted) == false) {
+        if ((oldTable[i]->deleted) == false) { //If not to be deleted,
             HASH_INDEX_T loc = this->probe(oldTable[i]->item.first); //Rehash into new spot
             table_[loc] = oldTable[i];
         } else {

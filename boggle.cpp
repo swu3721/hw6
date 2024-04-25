@@ -101,8 +101,7 @@ bool boggleHelper(const std::set<std::string>& dict, const std::set<std::string>
 		return false;
 	}
 
-    // Make new word
-    word += board[r][c];
+    word += board[r][c]; //New word
 
 	//If it is not a shorter word or not a word
 	if (prefix.count(word) == 0 && dict.count(word)  == 0) {
