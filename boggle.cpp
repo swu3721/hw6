@@ -96,4 +96,33 @@ bool boggleHelper(const std::set<std::string>& dict, const std::set<std::string>
 {
 //add your solution here!
 
+    // Check if out of bounds
+    if (r >= board.size() || r < 0 || c < 0 || c >= board.size()) {
+		return false;
+	}
+
+    // Make new word
+    word += board[r][c];
+
+	//If it is not a shorter word or not a word
+	if (prefix.count(word) == 0 && dict.count(word)  == 0) {
+		return false; //The the longer word does not exist
+	}
+
+	//Bool checking if longer word exists
+	bool longerWordExists = boggleHelper(dict, prefix, board, word, result, r + dr, c + dc, dr, dc);
+
+    // If the current word is a word
+    if (dict.count(word) > 0) {
+        if (!longerWordExists) { //If a longer word doesn't exist
+			result.insert(word); //Add it to results
+		}
+		return true; //Longer word does then exist no matter what
+    }
+
+	//Back track step
+	word.pop_back();
+
+
+    return longerWordExists;
 }

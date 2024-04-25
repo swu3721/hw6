@@ -6,6 +6,9 @@
 #include <random>
 #include <chrono>
 
+#include <ctime>
+#include <cstdlib>
+
 typedef std::size_t HASH_INDEX_T;
 
 struct MyStringHash {
@@ -20,15 +23,41 @@ struct MyStringHash {
     HASH_INDEX_T operator()(const std::string& k) const
     {
         // Add your code here
+        HASH_INDEX_T hash[5] = {0};
 
+        int strIndex = k.length() - 1;
+        int hashIndex = 4;
+        while (strIndex >= 0 && hashIndex >= 0) {
+            HASH_INDEX_T weight = 1;
+            HASH_INDEX_T wValue = 0;
 
+            for (int i = 0; i < 6 && strIndex >= 0; ++i) {
+                HASH_INDEX_T digit = letterDigitToNumber(k[strIndex]);
+                wValue += digit * weight;
+                weight *= 36;
+                --strIndex;
+            }
+            hash[hashIndex] = wValue;
+            --hashIndex;
+        }
+
+        unsigned long long hashVal = 0;
+        for (size_t i = 0; i < 5; ++i) {
+            hashVal += rValues[i] * hash[i];
+        }
+
+        return hashVal;
     }
 
     // A likely helper function is to convert a-z,0-9 to an integral value 0-35
     HASH_INDEX_T letterDigitToNumber(char letter) const
     {
         // Add code here or delete this helper function if you do not want it
-
+        if (isdigit(letter)) {
+            return letter - '0' + 26;
+        } else {
+            return tolower(letter) - 'a'; //a - a =0, b - a = 1, etc.
+        }
     }
 
     // Code to generate the random R values
